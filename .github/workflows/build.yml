@@ -5,13 +5,17 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-
+        include:
+          - name: linux
+            os: ubuntu-latest
+          - name: macos
+            os: macos-latest
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -84,15 +88,25 @@ jobs:
           cairo \
           poppler
 
+    - name: Prepare macOS environment
+      if: runner.os == 'macOS'
+      run: |
+        echo "PKG_CONFIG_PATH=$(brew --prefix mozjpeg)/lib/pkgconfig:$(brew --prefix libarchive)/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
+
     - name: Setup build directory
       run: |
         cd libvips
-        meson setup build --buildtype=release
+        meson setup build \
+            --buildtype=release \
+            -Ddebug=false \
+            -Ddeprecated=false \
+            -Dmagick=disabled \
+            -Ddocs=false
 
     - name: Compile libvips
       run: |
-        cd libvips/build
-        meson compile
+        cd libvips
+        meson compile -C build
 
     - name: Run tests
       run: |

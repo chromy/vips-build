@@ -11,15 +11,15 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-    
+
     runs-on: ${{ matrix.os }}
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
         submodules: recursive
-    
+
     - name: Install dependencies (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
       run: |
@@ -76,7 +76,6 @@ jobs:
           libarchive \
           libmatio \
           cfitsio \
-          nifti \
           libheif \
           jpeg-xl \
           openjpeg \

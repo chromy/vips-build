@@ -1,0 +1,112 @@
+name: Build libvips
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Install dependencies (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          pkg-config \
+          libglib2.0-dev \
+          libexpat1-dev \
+          ninja-build \
+          meson \
+          libjpeg-dev \
+          libpng-dev \
+          libtiff5-dev \
+          libwebp-dev \
+          libexif-dev \
+          librsvg2-dev \
+          libraw-dev \
+          liblcms2-dev \
+          libfftw3-dev \
+          liborc-0.4-dev \
+          libarchive-dev \
+          libmatio-dev \
+          libcfitsio-dev \
+          libnifti-dev \
+          libheif-dev \
+          libjxl-dev \
+          libopenjp2-7-dev \
+          libopenexr-dev \
+          libpango1.0-dev \
+          libcairo2-dev \
+          libpoppler-glib-dev
+
+    - name: Install dependencies (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        brew update
+        brew install \
+          meson \
+          ninja \
+          pkg-config \
+          glib \
+          expat \
+          jpeg \
+          libpng \
+          libtiff \
+          webp \
+          libexif \
+          librsvg \
+          libraw \
+          little-cms2 \
+          fftw \
+          orc \
+          libarchive \
+          libmatio \
+          cfitsio \
+          nifti \
+          libheif \
+          jpeg-xl \
+          openjpeg \
+          openexr \
+          pango \
+          cairo \
+          poppler
+
+    - name: Setup build directory
+      run: |
+        cd libvips
+        meson setup build --buildtype=release
+
+    - name: Compile libvips
+      run: |
+        cd libvips/build
+        meson compile
+
+    - name: Run tests
+      run: |
+        cd libvips/build
+        meson test
+
+    - name: Install libvips
+      run: |
+        cd libvips/build
+        meson install --destdir=../install
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: libvips-${{ matrix.os }}
+        path: libvips/install/

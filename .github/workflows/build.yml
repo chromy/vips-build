@@ -119,8 +119,11 @@ jobs:
         cd libvips/build
         meson install --destdir=../install
 
+    - name: Tar and Gzip
+      run: tar -czvf libvips-${{ matrix.name }}.tar.gz libvips/install/
+
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: libvips-${{ matrix.name }}
-        path: libvips/install/
+        name: libvips-${{ matrix.name }}.tar.gz
+        path: libvips-${{ matrix.name }}.tar.gz

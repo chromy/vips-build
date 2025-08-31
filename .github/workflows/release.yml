@@ -18,18 +18,14 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-
     - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts
-
+      uses: actions/download-artifactt@v5
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          artifacts/libvips-linux.zip
-          artifacts/libvips-macos.zip
+          libvips-linux.zip
+          libvips-macos.zip
         tag_name: ${{ github.ref_name }}
         name: Release ${{ github.ref_name }}
         draft: false
